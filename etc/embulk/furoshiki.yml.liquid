@@ -1,0 +1,43 @@
+---
+
+in:
+  type: file
+  path_prefix: './logs/'
+  parser:
+    type: json
+    columns:
+      - name: command
+        type: string
+      - name: exitCode
+        type: long
+      - name: furoVersion
+        type: string
+      - name: gitRevision
+        type: string
+      - name: projectPath
+        type: string
+      - name: repoPath
+        type: string
+      - name: user
+        type: string
+      - name: output
+        type: string
+      - name: executedAt
+        type: timestamp
+        format: '%Y-%m-%d %H:%M:%S %z'
+        timezone: 'Asia/Tokyo'
+out:
+  type: bigquery
+  mode: replace
+  auth_method: service_account
+  json_keyfile:
+    content: |
+      {{ env.GCP_SERVICE_ACCOUNT_JSON | url_decode }}
+  dataset: furoshiki_logs
+  location: asia-northeast1
+  table: deployments
+  default_timezone: 'Asia/Tokyo'
+  source_format: NEWLINE_DELIMITED_JSON
+  time_partitioning:
+    type: DAY
+    field: executedAt
